@@ -1,0 +1,127 @@
+﻿
+<br />
+<br />
+<br />
+<br />
+<input type="file" id="files" value="" />
+<button id="addFileAjax">add file ajax</button>
+<br />
+<br />
+<br />
+<table id="myTable"
+       class="table footable footable-1 footable-filtering footable-filtering-right footable-paging footable-paging-center breakpoint-lg toggle-arrow-tiny"
+       data-filter="#search"
+       data-page-size="8"
+       data-limit-navigation="3">
+    <thead>
+        <tr>
+            <th id="selector" class="center"> # </th>
+            <th> name </th>
+            <th> action </th>
+        </tr>
+    </thead>
+</table>
+
+
+<div class="modal fade" id="balance" tabindex="-1" role="alert" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">pdf</h4>
+            </div>
+            <div class="modal-body">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/Content/footable/footable.core.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/footable/footable.all.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        loadData()
+        $('#addFileAjax').click(function (e) {
+            e.preventDefault();
+            var data = new FormData();
+            var files = $("#files").get(0).files;
+
+            if (files.length > 0) {
+                data.append("HelpSectionImages", files[0]);
+            }
+            else {
+                alert('mmmm');
+                return false;
+            }
+            var obj = {
+                name: "ahmad",
+                age: 15,
+                location: {
+                    city: "tabuk",
+                    email: "a.wv@live.com"
+                }
+            };
+            data.append("Data", JSON.stringify(obj));
+            $.ajax({
+                url: '../Upload/FileSave', type: "POST", processData: false,
+                data: data, dataType: 'json',
+                contentType: false,
+                success: function (data) {
+                    loadData();
+                    $("#file").val('');
+                },
+                error: function (err) {
+
+                    alert(err);
+                }
+
+            });
+            return false;
+        });
+
+    });
+
+    function loadData() {
+        $.ajax({
+            url: "/Upload/FileDetails",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                var html = '';
+                $.each(result, function (key, item) {
+                    html += '<tr>';
+                    html += '<td class="center"  data-type="numeric">' + item.Id + '</td>';
+                    html += '<td>' + item.FileName + '</td>';
+                    
+                    html += '<td> <button onClick="getbyID('+ item.Id +')">download</button>';
+                    html += '</tr>';
+                });
+                $(".table").find('tbody').remove();
+                $(".table").find('tfoot').remove();
+                $('.table').append('<tbody class="tbody">' + html + '</tbody><tfoot><tr class="footable-paging"><td colspan="9"><div class="footable-pagination-wrapper"><ul class="pagination pull-right"><li id="arrowFirst" class="footable-page-arrow disabled"><a data-page="first" href="#first">«</a></li><li class="footable-page-arrow disabled"><a data-page="prev" href="#prev">‹</a></li><li class="footable-page active"><a data-page="0" href="#">1</a></li><li class="footable-page"><a data-page="1" href="#">2</a></li><li class="footable-page-arrow"><a data-page="next" href="#next">›</a></li><li id="arrowLast" class="footable-page-arrow"><a data-page="last" href="#last">»</a></li></ul></div></td></tr></tfoot>');                
+            },
+            error: function (errormessage) {
+                console.log(errormessage.responseText);
+            }
+        });
+    }
+    function getbyID(id) {
+        window.open('/Upload/DownLoadFile/' + id, 'attachment');
+        @*<a href="@Url.Action("DownLoadFile", "Upload", new RouteValueDictionary())" >download</a>
+        $.ajax({
+            url: "/Upload/DownLoadFile/"+ id,
+            type: "GET",
+            contentType: "application/pdf;charset=utf-8",
+            success: function (result) {
+                
+            },
+            error: function (errormessage) {
+
+            }
+        });*@
+    }
+</script>
